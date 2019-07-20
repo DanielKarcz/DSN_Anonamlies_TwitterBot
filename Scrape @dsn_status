@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+###################################################################################################################
+
+
+# Code taken from Jaime Zornoza at'https://towardsdatascience.com/downloading-data-from-twitter-using-the-rest-api-24becf413875'
+
+
+###################################################################################################################
+
+
+pip install tweepy
+
+
+###################################################################################################################
+
+
+import tweepy  
+import time  
+
+
+###################################################################################################################
+
+
+#This block, which queries the REST API for the user_id of 'dsn_status' official Twitter acount, 
+#returns: 3380828067, which is the id associated which such account. 
+#It is important here to see that the screen_name does not include the @.
+
+user = api.get_user(screen_name = 'dsn_status')  
+print(user.id)
+
+
+###################################################################################################################
+
+# Gathering the tweets from the Timeline of a certain user
+# The timeline of a certain user are the past tweets that he or she has published or retweeted. 
+# It is useful to collect this information to get an idea of the previous activity of a certain account 
+# within the social network. We have to know however, that the method that will be used can only return tweets 
+# from the last 3200 of a specific user, so if we are gathering posts of a very active account and want tweets 
+# from a very long time ago, we will not be able to obtain them.
+# This is a known limitation of the Twitter API, with no fix in the horizon, as by doing this, Twitter 
+# does not have to store ALL of the the tweets that have ever been produced by every single Twitter account.
+# After having created a connection to the Twitter REST API like described above, to collect the 
+# timeline of a user we have to use a code structure similar to what appears in the following block:
+
+###################################################################################################################
+
+import json  
+import csv
+
+###################################################################################################################
+
+
+#Twitter API credentials
+consumer_key = "eACCEyC6clDWV6MWVd7JMSs3U"
+consumer_secret = "chQkmc24JvHg575I9HrXLd6Vz0HEfZ5WjU9TrSIJIcB9flhcPa"
+access_key = "1070843825931849728-zXTb5NQdOa0PpzfEHPixfj6yrrybyG"
+access_secret = "6JBNjwFKZSv69atQXsonWhoBDKPKStB4GPe29hWnQJU7k"
+
+###################################################################################################################
+
+
+def get_all_tweets(screen_name):
+    #Twitter only allows access to a users most recent 3240 tweets with this method
+
+    #authorize twitter, initialize tweepy
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_key, access_secret)
+    api = tweepy.API(auth)
+
+    #initialize a list to hold all the tweepy Tweets
+    alltweets = []	
+
+    #make initial request for most recent tweets (200 is the maximum allowed count)
+    new_tweets = api.user_timeline(screen_name = screen_name,count=200)
+
+    #save most recent tweets
+    alltweets.extend(new_tweets)
+
+    #save the id of the oldest tweet less one
+    oldest = alltweets[-1].id - 1
+
+    #keep grabbing tweets until there are no tweets left to grab
+    while len(new_tweets) > 0:
+        print("getting tweets before %s" % (oldest))
+        
+        #all subsiquent requests use the max_id param to prevent duplicates
+        new_tweets = api.user_timeline(screen_name = screen_name,count=200,max_id=oldest)
+
+        #save most recent tweets
+        alltweets.extend(new_tweets)
+
+        #update the id of the oldest tweet less one
+        oldest = alltweets[-1].id - 1
+
+        print("...%s tweets downloaded so far" % (len(alltweets)))
+
+#transform the tweepy tweets into a 2D array that will populate the csv
+    outtweets=[[tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")] for tweet in alltweets]
+
+#write the csv	
+    with open('%s_tweets.csv' % screen_name, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(["id","created_at","text"])
+        writer.writerows(outtweets)
+
+    pass
+
+###################################################################################################################
+
+if __name__ == '__main__':
+    #pass in the username of the account you want to download
+    get_all_tweets("dsn_status")
+
+
+
+
+
+
