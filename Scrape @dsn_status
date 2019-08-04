@@ -53,10 +53,10 @@ import csv
 
 
 #Twitter API credentials
-consumer_key = "eACCEyC6clDWV6MWVd7JMSs3U"
-consumer_secret = "chQkmc24JvHg575I9HrXLd6Vz0HEfZ5WjU9TrSIJIcB9flhcPa"
-access_key = "1070843825931849728-zXTb5NQdOa0PpzfEHPixfj6yrrybyG"
-access_secret = "6JBNjwFKZSv69atQXsonWhoBDKPKStB4GPe29hWnQJU7k"
+consumer_key =  
+consumer_secret =  
+access_key =  
+access_secret =  
 
 ###################################################################################################################
 
